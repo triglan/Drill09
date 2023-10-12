@@ -50,6 +50,7 @@ AutoSpeed = 0
 class AutoRun:
     @staticmethod
     def enter(boy, e):#dir 1 우 -1 좌
+        global AutoSpeed
         print('Autorun시작')
         AutoSpeed = 3.0
         boy.dir, boy.action = 1, 1 # 좌우로 움직이고, 속도가 점점 빠랄지고, 크기가 확대되야함
