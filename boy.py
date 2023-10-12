@@ -20,8 +20,6 @@ def left_up(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_LEFT
 def a_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_a
-def a_up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_a
 
 class Run:
     @staticmethod
@@ -51,9 +49,12 @@ class AutoRun:
     @staticmethod
     def enter(boy, e):#dir 1 우 -1 좌
         global AutoSpeed
-        print('Autorun시작')
+        if boy.action == 3 or boy.action == 1:
+            boy.dir, boy.action = 1, 1
+        elif boy.action == 2or boy.action == 0:
+            boy.dir, boy.action = -1, 0
         AutoSpeed = 3.0
-        boy.dir, boy.action = 1, 1 # 좌우로 움직이고, 속도가 점점 빠랄지고, 크기가 확대되야함
+        #boy.dir, boy.action = 1, 1 # 좌우로 움직이고, 속도가 점점 빠랄지고, 크기가 확대되야함
 
     @staticmethod
     def exit(boy, e):# 5초 이상 경과하거나 RunKey를 눌렀을 때 발생
@@ -62,12 +63,18 @@ class AutoRun:
     @staticmethod
     def do(boy):
         global AutoSpeed
-        DisableAutoTime = 2
+        DisableAutoTime = 5
         if get_time() - boy.start_time > DisableAutoTime:
             boy.state_machine.handle_event(('TIME_OUT', 0))
         AutoSpeed += 0.05
         boy.frame = (boy.frame + 1) % 8
         boy.x += boy.dir * AutoSpeed
+        if boy.x >= 800:
+            boy.dir = -1
+            boy.action = 0
+        if boy.x <= 0:
+            boy.dir = 1
+            boy.action = 1
         pass
 
     @staticmethod
@@ -142,7 +149,7 @@ class StateMachine:
             Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, a_down: AutoRun, time_out: Sleep},
             Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, a_down: AutoRun},
             Sleep: {right_down: Run, left_down: Run, right_up: Run, left_up: Run, a_down: AutoRun, space_down: Idle},
-            AutoRun: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, time_out: Idle}
+            AutoRun: {right_down: Run, left_down: Run, time_out: Idle}
         }
 
     def start(self):
